@@ -49,11 +49,18 @@ Shader "Custom/test"
                 return OUT;
             }
 
+            float random (float2 st) {
+                return frac(sin(dot(st.xy,
+                                    float2(12.9898,78.233)))
+                            * 43758.5453123);
+            }
+
             half4 frag(Varyings IN) : SV_Target
             {
                 //half4 color = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, IN.uv) * _BaseColor;
                 //half4 color = half4(IN.positionHCS.xyz, 0);
-                half4 color = half4(IN.pos.rgb, 0);
+                //half4 color = half4(IN.pos.xyz, 0);
+                half4 color = half4(random(float2(1, IN.uv.x)),0,0, 0);
                 return color;
             }
             ENDHLSL
