@@ -70,6 +70,12 @@ Shader "Custom/test"
                     (d - b) * u.x * u.y;
             }
 
+            float circle(in float2 pos)
+            {
+                
+            }
+
+
             Varyings vert(Attributes IN)
             {
                 Varyings OUT;
@@ -88,9 +94,10 @@ Shader "Custom/test"
                 //half4 color = half4(IN.positionHCS.xyz, 0);
                 //half4 color = half4(IN.normal.xyz, 0);
                 
-                float c = (noise(IN.pos.xy * float2(12,1) + _Time.yy* -float2(1,1.2)) - .7) * (noise((IN.pos.xy * float2(12 ,5)) + _Time.yy * -float2(-.1,5.2)) - .6) - IN.pos.y;
-
-                half4 color = half4(c,c*.5,c*.2,1);
+                //float c = (noise(IN.pos.xz * float2(12,1) + _Time.yy* -float2(1,1.2)) - .7) * (noise((IN.pos.xy * float2(12 ,5)) + _Time.yy * -float2(-.1,5.2)) - .6) - IN.pos.y;
+                float c = noise(IN.uv.xy);
+                //c = IN.uv.xy;
+                half4 color = half4(c,c,c,1);
                 return color;
             }
             ENDHLSL
