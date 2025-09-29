@@ -70,11 +70,27 @@ Shader "Custom/test"
                     (d - b) * u.x * u.y;
             }
 
-            float circle(in float2 pos)
+            float circle(in float2 pos, in float radius)
             {
-                
+                return step(length(pos) - radius, 0);
             }
 
+            float opSubtraction( float d1, float d2 ) { return max(d1,-d2); }
+
+
+            float sdCircle(float2 p, float r)
+            {
+                return length(p) - r;
+            }
+
+            float sdGrassBlade2d(float2 p)
+            {
+                float dist = sdCircle(p - float2(1.7, -1.3), 2.0);
+                dist = opSubtraction(dist, sdCircle(p - float2(1.7, -1.0), 1.8));
+                dist = opSubtraction(dist, p.y + 1.0);
+                dist = opSubtraction(dist, -p.x + 1.7);
+                return dist;
+            }
 
             Varyings vert(Attributes IN)
             {
@@ -94,8 +110,13 @@ Shader "Custom/test"
                 //half4 color = half4(IN.positionHCS.xyz, 0);
                 //half4 color = half4(IN.normal.xyz, 0);
                 
+                float2 p = IN.uv.xy;
+                p -= float2(.15,.5);
+                //p *= float2(-10,-.5);
                 //float c = (noise(IN.pos.xz * float2(12,1) + _Time.yy* -float2(1,1.2)) - .7) * (noise((IN.pos.xy * float2(12 ,5)) + _Time.yy * -float2(-.1,5.2)) - .6) - IN.pos.y;
-                float c = noise(IN.uv.xy);
+                float c;
+                c =  sdGrassBlade2d(p);
+                //c +=  sdGrassBlade2d(p + float2(.5,.5));
                 //c = IN.uv.xy;
                 half4 color = half4(c,c,c,1);
                 return color;
