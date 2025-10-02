@@ -162,8 +162,6 @@ Shader "Custom/test"
                     n = min(n, .1);
                     n-=1.5;
 
-
-
                     float2 bldPos = random2(bladePos + float2(n,10-i));
                     p = IN.uv.xy;
                     p-= bldPos;
