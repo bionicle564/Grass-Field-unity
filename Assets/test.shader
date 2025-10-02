@@ -159,15 +159,19 @@ Shader "Custom/test"
                 for(int i=0;i<20;i++)
                 {
                     float n = noise(float2(-i,i+10));
-                    n = min(n, .7);
+                    n = min(n, .1);
                     n-=1.5;
+
+
+
                     float2 bldPos = random2(bladePos + float2(n,10-i));
                     p = IN.uv.xy;
                     p-= bldPos;
                     //float uvSpace = IN.uv.xy*float2(1,.52);
                     float uvSpace = mul(scale(float2(1,1)),IN.uv.xy);
                     p = mul(rotate2d(-.3 + (noise(uvSpace) - noise(bldPos))), p);
-                    p = mul(scale(float2(1,1)),p);
+                    
+                    p = mul(scale(float2(1 - (2* (i%2)),1)),p);
 
                     c +=  smoothstep(0.01,-.04,sdGrassBlade2d(p));
 
@@ -189,14 +193,16 @@ Shader "Custom/test"
 
                 float highlights = smoothstep(.2, 10.1, c);
                 highlights -= base;
-                highlights = smoothstep(0.0, 4, highlights);
+                highlights = smoothstep(0.0, 1, highlights);
                 highlights*=100;
+                //highlights = min(highlights, 1);
+                //highlights = smoothstep(50, 100, highlights);
 
                 c = smoothstep(.2, 1.1, c);
 
                 //c = highlights;
 
-                half4 color = half4(highlights,c.y - highlights,0,1);
+                half4 color = half4(highlights,c.y,0,1);
                 return color;
             }
             ENDHLSL
