@@ -4,7 +4,7 @@ Shader "Custom/test"
     {
         [MainColor] _BaseColor("Base Color", Color) = (1, 1, 1, 1)
         [MainTexture] _BaseMap("Base Map", 2D) = "white"
-        
+        _Seed("Seed", Vector) = (1,1,1,1)
     }
 
     SubShader
@@ -107,13 +107,20 @@ Shader "Custom/test"
                                 sin(_angle),cos(_angle));
             }
 
+            float2x2 scale(float2 _scale)
+            {
+                return float2x2(_scale.x,0.0,
+                                0.0,_scale.y);
+            }
+
+
             Varyings vert(Attributes IN)
             {
                 Varyings OUT;
                 //OUT.positionHCS = TransformObjectToHClip((IN.positionOS.xyz + (IN.normal.xyz * random(IN.uv.xy) * _SinTime.w * .001)));
                 OUT.positionHCS = TransformObjectToHClip(IN.positionOS.xyz);
-                OUT.pos.xyz = IN.positionOS.xyz;
-                OUT.normal =  IN.normal;
+                OUT.pos.xyz = mul(unity_ObjectToWorld, IN.positionOS.xyz);
+                OUT.normal =  mul(unity_ObjectToWorld,IN.normal);
                 OUT.uv = TRANSFORM_TEX(IN.uv, _BaseMap);
                 return OUT;
             }
@@ -125,8 +132,9 @@ Shader "Custom/test"
                 //half4 color = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, IN.uv) * _BaseColor;
                 //half4 color = half4(IN.positionHCS.xyz, 0);
                 //half4 color = half4(IN.normal.xyz, 0);
+                float4 _Seed;
                 
-                float2 bladePos = float2(.2,.55);
+                float2 bladePos = float2(.12,.55);
                 float2 bladePos2 = float2(.7,.55);
                 float2 c = 0;
 
@@ -139,23 +147,29 @@ Shader "Custom/test"
                 //float c = (noise(IN.pos.xz * float2(12,1) + _Time.yy* -float2(1,1.2)) - .7) * (noise((IN.pos.xy * float2(12 ,5)) + _Time.yy * -float2(-.1,5.2)) - .6) - IN.pos.y;
                 //c = p;
                 
-                c +=  smoothstep(0.01,-.02,sdGrassBlade2d(p));
+                //c +=  smoothstep(0.01,-.02,sdGrassBlade2d(p));
 
                 p = IN.uv.xy;
                 p-= bladePos2;
                 p = mul(rotate2d(-.3), p);
 
 
-                c +=  smoothstep(0.01,-.02,sdGrassBlade2d(p));
+                //c +=  smoothstep(0.01,-.02,sdGrassBlade2d(p));
 
-                for(int i=0;i<10;i++)
+                for(int i=0;i<20;i++)
                 {
-                    float2 bldPos = random2(bladePos + float2(i,i));
+                    float n = noise(float2(-i,i+10));
+                    n = min(n, .7);
+                    n-=1.5;
+                    float2 bldPos = random2(bladePos + float2(n,10-i));
                     p = IN.uv.xy;
                     p-= bldPos;
-                    p = mul(rotate2d(-.3), p);
+                    //float uvSpace = IN.uv.xy*float2(1,.52);
+                    float uvSpace = mul(scale(float2(1,1)),IN.uv.xy);
+                    p = mul(rotate2d(-.3 + (noise(uvSpace) - noise(bldPos))), p);
+                    p = mul(scale(float2(1,1)),p);
 
-                    c +=  smoothstep(0.01,-.02,sdGrassBlade2d(p));
+                    c +=  smoothstep(0.01,-.04,sdGrassBlade2d(p));
 
                 }
 
@@ -173,9 +187,16 @@ Shader "Custom/test"
                 //c +=  sdGrassBlade2d(p + float2(.5,.5));
                 //c = IN.uv.xy;
 
-                c = smoothstep(.2, 1, c);
+                float highlights = smoothstep(.2, 10.1, c);
+                highlights -= base;
+                highlights = smoothstep(0.0, 4, highlights);
+                highlights*=100;
 
-                half4 color = half4(c.x,c.y,0,1);
+                c = smoothstep(.2, 1.1, c);
+
+                //c = highlights;
+
+                half4 color = half4(highlights,c.y - highlights,0,1);
                 return color;
             }
             ENDHLSL
