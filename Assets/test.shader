@@ -16,18 +16,20 @@ Shader "Custom/test"
         Pass
         {
             HLSLPROGRAM
-            #pragma target 3.0
             
             #pragma vertex vert
             #pragma fragment frag
+            #pragma multi_compile_instancing
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 
             struct Attributes
             {
                 float4 positionOS : POSITION;
                 float4 normal : NORMAL;
                 float2 uv : TEXCOORD0;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
             struct Varyings
@@ -36,11 +38,18 @@ Shader "Custom/test"
                 float2 uv : TEXCOORD0;
                 float4 normal : NORMAL;
                 float4 pos : COLOR;
-                
+                half3 lightAmount : TEXCOORD2;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
             TEXTURE2D(_BaseMap);
             SAMPLER(sampler_BaseMap);
+
+            UNITY_INSTANCING_BUFFER_START(Props)
+                UNITY_DEFINE_INSTANCED_PROP(float4, _Position)
+            UNITY_INSTANCING_BUFFER_END(Props)
+
+
 
             CBUFFER_START(UnityPerMaterial)
                 half4 _BaseColor;
@@ -117,11 +126,28 @@ Shader "Custom/test"
             Varyings vert(Attributes IN)
             {
                 Varyings OUT;
+
+                UNITY_SETUP_INSTANCE_ID(IN);
+
+                float3 offset = IN.UNITY_VERTEX_INPUT_INSTANCE_ID;
+
+
                 //OUT.positionHCS = TransformObjectToHClip((IN.positionOS.xyz + (IN.normal.xyz * random(IN.uv.xy) * _SinTime.w * .001)));
                 OUT.positionHCS = TransformObjectToHClip(IN.positionOS.xyz);
-                OUT.pos.xyz = mul(unity_ObjectToWorld, IN.positionOS.xyz);
-                OUT.normal =  mul(unity_ObjectToWorld,IN.normal);
+
+                VertexPositionInputs posData = GetVertexPositionInputs(IN.positionOS.xyz); 
+                OUT.pos.xyz = posData.positionWS;
+
+                VertexNormalInputs normData = GetVertexNormalInputs(IN.positionOS);
+                OUT.normal.xyz = normData.normalWS;
+
+
+                Light light = GetMainLight();
+
+                OUT.lightAmount = LightingLambert(light.color, light.direction, normData.normalWS.xyz);
+
                 OUT.uv = TRANSFORM_TEX(IN.uv, _BaseMap);
+
                 return OUT;
             }
 
@@ -129,52 +155,35 @@ Shader "Custom/test"
             half4 frag(Varyings IN) : SV_Target
             {
                 
-                //half4 color = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, IN.uv) * _BaseColor;
-                //half4 color = half4(IN.positionHCS.xyz, 0);
-                //half4 color = half4(IN.normal.xyz, 0);
                 float4 _Seed;
                 
-                float2 bladePos = float2(.12,.55);
+                float2 bladePos = float2(.0,.55);
                 float2 bladePos2 = float2(.7,.55);
                 float2 c = 0;
 
-                float2 p = IN.uv.xy;
-                p -= bladePos;
+                float2 p;
 
-                p = mul(rotate2d(-.3), p);
-                
-                //p *= float2(-10,-.5);
-                //float c = (noise(IN.pos.xz * float2(12,1) + _Time.yy* -float2(1,1.2)) - .7) * (noise((IN.pos.xy * float2(12 ,5)) + _Time.yy * -float2(-.1,5.2)) - .6) - IN.pos.y;
-                //c = p;
-                
-                //c +=  smoothstep(0.01,-.02,sdGrassBlade2d(p));
-
-                p = IN.uv.xy;
-                p-= bladePos2;
-                p = mul(rotate2d(-.3), p);
-
-
-                //c +=  smoothstep(0.01,-.02,sdGrassBlade2d(p));
-
-                for(int i=0;i<15;i++)
+                for(int i=0;i<20;i++)
                 {
                     float n = noise(float2(-i,i+10));
-                    n = min(n, .1);
+                    //n = min(n, .1);
                     n-=1.5;
 
-                    float2 bldPos = random2(bladePos + float2(n,10-i));
+                    float2 bldPos = random2(bladePos + float2(n,0));
                     p = IN.uv.xy;
                     p-= bldPos;
-                    //float uvSpace = IN.uv.xy*float2(1,.52);
-                    float uvSpace = mul(scale(float2(1,1)),IN.uv.xy);
-                    p = mul(rotate2d(-.3 + (noise(uvSpace) - noise(bldPos))), p);
                     
-                    p = mul(scale(float2(1 - (2* (i%2)),1)),p);
+                    float uvSpace = mul(scale(float2(1,1)),IN.uv.xy);
+                    
+                    p = mul(rotate2d(-.3 + (noise(bldPos))), p);
+                    
+                    p = mul(scale(float2(1 - (2* (i%2)),1)),p); // flip every other blade
 
                     c +=  smoothstep(0.01,-.04,sdGrassBlade2d(p));
 
                 }
 
+                //green base
                 float base = 1-sdCircle((IN.uv.xy * float2(1,1.5)) + float2(-.5,.7), .3);
 
                 base = smoothstep(.2,.3,base);
@@ -189,18 +198,25 @@ Shader "Custom/test"
                 //c +=  sdGrassBlade2d(p + float2(.5,.5));
                 //c = IN.uv.xy;
 
+
+                // get the lighter tones inside the grassblade
                 float highlights = smoothstep(.2, 10.1, c);
                 highlights -= base;
                 highlights = smoothstep(0.0, 1, highlights);
                 highlights*=100;
-                //highlights = min(highlights, 1);
-                //highlights = smoothstep(50, 100, highlights);
 
                 c = smoothstep(.2, 1.1, c);
 
-                //c = highlights;
+                //c = highlights; // testing
 
                 half4 color = half4(highlights,c.y,0,1);
+
+                float brightness = .3;
+                brightness += IN.lightAmount.x;
+                //brightness = smoothstep(.3, 1, brightness);
+
+                color *= brightness;
+                //color.xyz += (IN.lightAmount * .3);
                 return color;
             }
             ENDHLSL
