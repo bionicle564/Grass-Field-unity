@@ -156,7 +156,7 @@ Shader "Custom/test"
 
                 //c +=  smoothstep(0.01,-.02,sdGrassBlade2d(p));
 
-                for(int i=0;i<20;i++)
+                for(int i=0;i<15;i++)
                 {
                     float n = noise(float2(-i,i+10));
                     n = min(n, .1);
