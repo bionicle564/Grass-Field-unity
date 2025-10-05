@@ -10,13 +10,33 @@ struct GrassData
 
 RWStructuredBuffer<GrassData> grassBuffer;
 
+Texture2D<float> hightMap;
+SamplerState samplerHightMap;
+
+float2 groundSize;
+float heightScale;
+
+uint grassCount;
+
 [numthreads(64,1,1)]
 void CSMain (uint3 id : SV_DispatchThreadID)
 {
     uint index = id.x;
 
+    float u = (float)index / grassCount;
+
+
     GrassData g;
-    g.position = float3(index,0,0);
+    float x = index % 300;
+    float z = index / 300;
+
+    x -= 150;
+    z -= 150;
+
+    g.position = float3(x, 0, z);
+    
+    
+    
     grassBuffer[index] = g;
 
 }

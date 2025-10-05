@@ -9,6 +9,7 @@ public class spawner : MonoBehaviour
 
     public int grassCount = 1000;
 
+
     ComputeBuffer grassBuffer;
     ComputeBuffer argsBuf;
 
@@ -34,7 +35,7 @@ public class spawner : MonoBehaviour
         grassCompute.SetBuffer(kernel, "grassBuffer", grassBuffer);
         grassCompute.Dispatch(kernel, Mathf.CeilToInt(grassCount / (float)threadGroupX), 1,1);
 
-
+        grassCompute.SetInt("grassCount", grassCount);
         grassMaterial.SetBuffer("_GrassBuffer", grassBuffer);
     }
 
