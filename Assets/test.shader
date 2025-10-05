@@ -223,7 +223,7 @@ Shader "Custom/test"
 
                 half4 color = half4(highlights,c.y,0,1);
 
-                float brightness = .3;
+                float brightness = .1;
                 brightness += IN.lightAmount.x;
                 //brightness = smoothstep(.3, 1, brightness);
 

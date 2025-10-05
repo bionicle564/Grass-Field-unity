@@ -7,8 +7,11 @@ public class spawner : MonoBehaviour
     public Material grassMaterial;
     public ComputeShader grassCompute;
 
+    public Texture2D hightMap;
+
     public int grassCount = 1000;
 
+    public float hightScale = 1;
 
     ComputeBuffer grassBuffer;
     ComputeBuffer argsBuf;
@@ -33,10 +36,18 @@ public class spawner : MonoBehaviour
         kernel = grassCompute.FindKernel("CSMain");
         grassCompute.GetKernelThreadGroupSizes(kernel, out threadGroupX, out _, out _);
         grassCompute.SetBuffer(kernel, "grassBuffer", grassBuffer);
-        grassCompute.Dispatch(kernel, Mathf.CeilToInt(grassCount / (float)threadGroupX), 1,1);
 
+        grassCompute.SetTexture(kernel, "hightMap", hightMap);
+
+
+
+        grassCompute.SetFloat("heightScale",hightScale);
         grassCompute.SetInt("grassCount", grassCount);
         grassMaterial.SetBuffer("_GrassBuffer", grassBuffer);
+
+        grassCompute.Dispatch(kernel, Mathf.CeilToInt(grassCount / (float)threadGroupX), 1,1);
+
+
     }
 
     // Update is called once per frame
