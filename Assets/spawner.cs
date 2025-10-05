@@ -47,4 +47,10 @@ public class spawner : MonoBehaviour
             argsBuf
         );
     }
+    
+    void OnDestroy()
+    {
+        grassBuffer?.Release();
+        argsBuf?.Release();
+    }
 }

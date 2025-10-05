@@ -260,7 +260,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ab96cff347c44d4482981b01ea548ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  grassMesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+  grassMesh: {fileID: 7450741763379908841, guid: 63dd359e6e0d9e349941bdf70ffdf88c, type: 3}
   grassMaterial: {fileID: 2100000, guid: 6cbdc3025aa30b44a8088841d0d5d528, type: 2}
   grassCompute: {fileID: 7200000, guid: 09054916749102c4386b9c28203b20f2, type: 3}
   grassCount: 1000

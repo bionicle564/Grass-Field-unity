@@ -143,8 +143,9 @@ Shader "Custom/test"
 
                 GrassData data = _GrassBuffer[instanceID];
 
+
                 //OUT.positionHCS = TransformObjectToHClip((IN.positionOS.xyz + (IN.normal.xyz * random(IN.uv.xy) * _SinTime.w * .001)));
-                OUT.positionHCS = TransformObjectToHClip(IN.positionOS.xyz);
+                OUT.positionHCS = TransformObjectToHClip(IN.positionOS.xyz + data.position);
 
                 VertexPositionInputs posData = GetVertexPositionInputs(IN.positionOS.xyz); 
                 OUT.pos.xyz = posData.positionWS;
