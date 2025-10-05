@@ -45,10 +45,10 @@ Shader "Custom/test"
             TEXTURE2D(_BaseMap);
             SAMPLER(sampler_BaseMap);
 
+
             UNITY_INSTANCING_BUFFER_START(Props)
                 UNITY_DEFINE_INSTANCED_PROP(float4, _Position)
             UNITY_INSTANCING_BUFFER_END(Props)
-
 
 
             CBUFFER_START(UnityPerMaterial)
@@ -129,7 +129,7 @@ Shader "Custom/test"
 
                 UNITY_SETUP_INSTANCE_ID(IN);
 
-                float3 offset = IN.UNITY_VERTEX_INPUT_INSTANCE_ID;
+                //float offset = UNITY_VERTEX_INPUT_INSTANCE_ID;
 
 
                 //OUT.positionHCS = TransformObjectToHClip((IN.positionOS.xyz + (IN.normal.xyz * random(IN.uv.xy) * _SinTime.w * .001)));
