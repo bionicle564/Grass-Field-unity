@@ -24,6 +24,16 @@ Shader "Custom/test"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 
+
+
+            struct GrassData
+            {
+                float3 position;
+            };
+
+            StructuredBuffer<GrassData> _GrassBuffer;
+
+
             struct Attributes
             {
                 float4 positionOS : POSITION;
@@ -123,7 +133,7 @@ Shader "Custom/test"
             }
 
 
-            Varyings vert(Attributes IN)
+            Varyings vert(Attributes IN,uint instanceID : SV_InstanceID)
             {
                 Varyings OUT;
 
@@ -131,6 +141,7 @@ Shader "Custom/test"
 
                 //float offset = UNITY_VERTEX_INPUT_INSTANCE_ID;
 
+                GrassData data = _GrassBuffer[instanceID];
 
                 //OUT.positionHCS = TransformObjectToHClip((IN.positionOS.xyz + (IN.normal.xyz * random(IN.uv.xy) * _SinTime.w * .001)));
                 OUT.positionHCS = TransformObjectToHClip(IN.positionOS.xyz);
