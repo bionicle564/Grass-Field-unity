@@ -143,6 +143,35 @@ Shader "Custom/test"
 
                 GrassData data = _GrassBuffer[instanceID];
 
+                float randomHeight = noise(data.position.xz);
+
+                float wind = random(data.position.xz);
+
+                if(IN.positionOS.y > .0)
+                {
+                    float2 dir = normalize(float2(1.0, 0.3)); // wave direction (any vector on XZ)
+                    float frequency = 2.0;                    // how many waves fit per unit
+                    float amplitude = .6;                    // wave height
+                    float steepness = 1.5;                    // how sharp the crests are
+                    float speed = 1.3;                        // how fast the wave moves
+
+                    // Get vertex position in XZ
+                    float2 posXZ = IN.positionOS.xz;
+
+                    // Compute wave phase
+                    float wavePhase = dot(dir, posXZ) * frequency + _Time.y * speed;
+
+                    // Gerstner displacement
+                    float waveHeight = sin(wavePhase) * amplitude;
+                    float2 waveOffset = dir * cos(wavePhase) * amplitude * steepness;
+
+                    // Apply displacements
+                    IN.positionOS.xz += waveOffset + (wind * 2);
+                    //IN.positionOS.x += ( _SinTime.w);
+                }
+
+
+                IN.positionOS.y *= ((randomHeight+1));
 
                 //OUT.positionHCS = TransformObjectToHClip((IN.positionOS.xyz + (IN.normal.xyz * random(IN.uv.xy) * _SinTime.w * .001)));
                 OUT.positionHCS = TransformObjectToHClip(IN.positionOS.xyz + data.position);
@@ -215,7 +244,7 @@ Shader "Custom/test"
                 float highlights = smoothstep(.2, 10.1, c);
                 highlights -= base;
                 highlights = smoothstep(0.0, 1, highlights);
-                highlights*=100;
+                highlights*=50;
 
                 c = smoothstep(.2, 1.1, c);
 
