@@ -13,6 +13,9 @@ public class spawner : MonoBehaviour
 
     public float hightScale = 1;
 
+    public int sideLength = 300;
+    public int density = 1;
+
     ComputeBuffer grassBuffer;
     ComputeBuffer argsBuf;
 
@@ -23,10 +26,12 @@ public class spawner : MonoBehaviour
     void Start()
     {
         int stride = Marshal.SizeOf(typeof(GrassData));
-        grassBuffer = new ComputeBuffer(grassCount, stride, ComputeBufferType.Structured);
+        grassBuffer = new ComputeBuffer(grassCount*density, stride, ComputeBufferType.Structured);
+
+        uint argCount = (uint)(grassCount * density);
 
         uint[] args = new uint[5] {
-            grassMesh.GetIndexCount(0), (uint)grassCount,
+            grassMesh.GetIndexCount(0), (uint)argCount,
             grassMesh.GetIndexStart(0), grassMesh.GetBaseVertex(0), 0
         };
 
@@ -42,10 +47,14 @@ public class spawner : MonoBehaviour
 
 
         grassCompute.SetFloat("heightScale",hightScale);
-        grassCompute.SetInt("grassCount", grassCount);
+        grassCompute.SetFloat("sideLength", sideLength);
+
+        grassCompute.SetInt("density", density);
+
+        grassCompute.SetInt("grassCount", (grassCount*density));
         grassMaterial.SetBuffer("_GrassBuffer", grassBuffer);
 
-        grassCompute.Dispatch(kernel, Mathf.CeilToInt(grassCount / (float)threadGroupX), 1,1);
+        grassCompute.Dispatch(kernel, Mathf.CeilToInt((grassCount * density) / (float)threadGroupX), 1,1);
 
 
     }

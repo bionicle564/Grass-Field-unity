@@ -132,6 +132,13 @@ Shader "Custom/test"
                 0.0,_scale.y);
             }
 
+            float4 RotateAroundYInDegrees (float4 vertex, float degrees) {
+                float alpha = degrees * 3.14 / 180.0;
+                float sina, cosa;
+                sincos(alpha, sina, cosa);
+                float2x2 m = float2x2(cosa, -sina, sina, cosa);
+                return float4(mul(m, vertex.xz), vertex.yw).xzyw;
+            }
 
             Varyings vert(Attributes IN,uint instanceID : SV_InstanceID)
             {
@@ -146,6 +153,8 @@ Shader "Custom/test"
                 float randomHeight = noise(data.position.xz);
 
                 float wind = random(data.position.xz);
+
+                IN.positionOS = RotateAroundYInDegrees(IN.positionOS, 45.f);
 
                 
                 float2 dir = normalize(float2(1.0, 0.3)); // wave direction (any vector on XZ)
@@ -170,7 +179,7 @@ Shader "Custom/test"
                 
 
 
-                IN.positionOS.y *= ((randomHeight+1));
+                //IN.positionOS.y *= ((randomHeight+1));
 
                 //OUT.positionHCS = TransformObjectToHClip((IN.positionOS.xyz + (IN.normal.xyz * random(IN.uv.xy) * _SinTime.w * .001)));
                 OUT.positionHCS = TransformObjectToHClip(IN.positionOS.xyz + data.position);

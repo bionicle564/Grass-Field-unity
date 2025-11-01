@@ -16,25 +16,32 @@ SamplerState sampler_point_repeat;
 float2 groundSize;
 float heightScale;
 
+float sideLength;
+
+uint density;
+
 uint grassCount;
 
-[numthreads(64,1,1)]
+[numthreads(64,1,1)] //groups of 64
 void CSMain (uint3 id : SV_DispatchThreadID)
 {
     uint index = id.x;
 
     //float u = (float)index / grassCount;
-
+    
 
     GrassData g;
-    float x = index % 300;
-    float z = index / 300;
-
+    float x = index % (sideLength * density);
+    float z = index / (sideLength);
+    
+    x *= 1.f / density;
+    z *= 1.f / density;
+    
     float2 uv;
-    uv.x = x / 300;
-    uv.y = z / 300;
+    uv.x = x / sideLength;
+    uv.y = z / sideLength;
 
-    float4 hightMapST = float4(2,2,0,0);
+    float4 hightMapST = float4(1,1,0,0);
 
     uv = uv * hightMapST.xy + hightMapST.zw;
 
@@ -44,8 +51,8 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     displace *= heightScale;
     //displace -= 1.25;
 
-    x -= 148;
-    z -= 150;
+    x -= 149;
+    z -= 149;
 
     g.position = float3(x, displace, z);
     

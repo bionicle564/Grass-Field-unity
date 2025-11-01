@@ -148,12 +148,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ab96cff347c44d4482981b01ea548ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  grassMesh: {fileID: 7450741763379908841, guid: 63dd359e6e0d9e349941bdf70ffdf88c, type: 3}
+  grassMesh: {fileID: 3612910451103993989, guid: 3b97de01edddb4347ae5727195e7a56e, type: 3}
   grassMaterial: {fileID: 2100000, guid: 6cbdc3025aa30b44a8088841d0d5d528, type: 2}
   grassCompute: {fileID: 7200000, guid: 09054916749102c4386b9c28203b20f2, type: 3}
   hightMap: {fileID: 2800000, guid: f4366b7e70c613b4686cb50c1c784752, type: 3}
   grassCount: 90000
   hightScale: 11.2
+  sideLength: 300
+  density: 1
 --- !u!4 &284196442
 Transform:
   m_ObjectHideFlags: 0
@@ -810,7 +812,7 @@ Transform:
   m_GameObject: {fileID: 1239562242}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -4.92, y: 0.32, z: 0}
+  m_LocalPosition: {x: -5.81, y: 2.303, z: -2.55}
   m_LocalScale: {x: 1, y: 2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
