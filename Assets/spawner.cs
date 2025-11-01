@@ -25,10 +25,10 @@ public class spawner : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        uint argCount = (uint)(grassCount * density * density);
         int stride = Marshal.SizeOf(typeof(GrassData));
-        grassBuffer = new ComputeBuffer(grassCount*density, stride, ComputeBufferType.Structured);
+        grassBuffer = new ComputeBuffer(grassCount*density * density, stride, ComputeBufferType.Structured);
 
-        uint argCount = (uint)(grassCount * density);
 
         uint[] args = new uint[5] {
             grassMesh.GetIndexCount(0), (uint)argCount,
@@ -51,10 +51,10 @@ public class spawner : MonoBehaviour
 
         grassCompute.SetInt("density", density);
 
-        grassCompute.SetInt("grassCount", (grassCount*density));
+        grassCompute.SetInt("grassCount", (grassCount*density * density));
         grassMaterial.SetBuffer("_GrassBuffer", grassBuffer);
 
-        grassCompute.Dispatch(kernel, Mathf.CeilToInt((grassCount * density) / (float)threadGroupX), 1,1);
+        grassCompute.Dispatch(kernel, Mathf.CeilToInt((grassCount * density * density) / (float)threadGroupX), 1,1);
 
 
     }

@@ -155,7 +155,7 @@ MonoBehaviour:
   grassCount: 90000
   hightScale: 11.2
   sideLength: 300
-  density: 1
+  density: 3
 --- !u!4 &284196442
 Transform:
   m_ObjectHideFlags: 0
