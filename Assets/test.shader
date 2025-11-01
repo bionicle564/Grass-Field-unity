@@ -57,7 +57,7 @@ Shader "Custom/test"
 
 
             UNITY_INSTANCING_BUFFER_START(Props)
-                UNITY_DEFINE_INSTANCED_PROP(float4, _Position)
+            UNITY_DEFINE_INSTANCED_PROP(float4, _Position)
             UNITY_INSTANCING_BUFFER_END(Props)
 
 
@@ -68,8 +68,8 @@ Shader "Custom/test"
             
             float random (float2 st) {
                 return frac(sin(dot(st.xy,
-                                    float2(12.9898,78.233)))
-                            * 43758.5453123);
+                float2(12.9898,78.233)))
+                * 43758.5453123);
             }
 
             float2 random2( float2 p ) {
@@ -94,8 +94,8 @@ Shader "Custom/test"
 
                 // Mix 4 coorners percentages
                 return lerp(a, b, u.x) +
-                    (c - a)* u.y * (1.0 - u.x) +
-                    (d - b) * u.x * u.y;
+                (c - a)* u.y * (1.0 - u.x) +
+                (d - b) * u.x * u.y;
             }
 
             float circle(in float2 pos, in float radius)
@@ -123,13 +123,13 @@ Shader "Custom/test"
             float2x2 rotate2d(float _angle)
             {
                 return float2x2(cos(_angle),-sin(_angle),
-                                sin(_angle),cos(_angle));
+                sin(_angle),cos(_angle));
             }
 
             float2x2 scale(float2 _scale)
             {
                 return float2x2(_scale.x,0.0,
-                                0.0,_scale.y);
+                0.0,_scale.y);
             }
 
 
@@ -147,28 +147,27 @@ Shader "Custom/test"
 
                 float wind = random(data.position.xz);
 
-                if(IN.positionOS.y > .0)
-                {
-                    float2 dir = normalize(float2(1.0, 0.3)); // wave direction (any vector on XZ)
-                    float frequency = 2.0;                    // how many waves fit per unit
-                    float amplitude = .6;                    // wave height
-                    float steepness = 1.5;                    // how sharp the crests are
-                    float speed = 1.3;                        // how fast the wave moves
+                
+                float2 dir = normalize(float2(1.0, 0.3)); // wave direction (any vector on XZ)
+                float frequency = 2.0;                    // how many waves fit per unit
+                float amplitude = .6;                    // wave height
+                float steepness = 1.5;                    // how sharp the crests are
+                float speed = 1.3;                        // how fast the wave moves
 
-                    // Get vertex position in XZ
-                    float2 posXZ = IN.positionOS.xz;
+                // Get vertex position in XZ
+                float2 posXZ = IN.positionOS.xz;
 
-                    // Compute wave phase
-                    float wavePhase = dot(dir, posXZ) * frequency + _Time.y * speed;
+                // Compute wave phase
+                float wavePhase = dot(dir, posXZ) * frequency + _Time.y * speed;
 
-                    // Gerstner displacement
-                    float waveHeight = sin(wavePhase) * amplitude;
-                    float2 waveOffset = dir * cos(wavePhase) * amplitude * steepness;
+                // Gerstner displacement
+                float waveHeight = sin(wavePhase) * amplitude;
+                float2 waveOffset = dir * cos(wavePhase) * amplitude * steepness;
 
-                    // Apply displacements
-                    IN.positionOS.xz += waveOffset + (wind * 2);
-                    //IN.positionOS.x += ( _SinTime.w);
-                }
+                // Apply displacements
+                //IN.positionOS.xz += (waveOffset + (wind * 2)) * IN.positionOS.y;
+                //IN.positionOS.x += ( _SinTime.w);
+                
 
 
                 IN.positionOS.y *= ((randomHeight+1));
@@ -230,7 +229,7 @@ Shader "Custom/test"
                 base = smoothstep(.2,.3,base);
                 c += base;
 
-                float alpha = step(.2, c);
+                float alpha = step(.9, c);
 
                 if (alpha < 1)
                 {
@@ -250,7 +249,9 @@ Shader "Custom/test"
 
                 //c = highlights; // testing
 
-                half4 color = half4(highlights,c.y,0,1);
+                //half4 color = half4(highlights,c.y,0,1);
+                half4 color = half4(0,c.y,0,1);
+
 
                 float brightness = .1;
                 brightness += IN.lightAmount.x;

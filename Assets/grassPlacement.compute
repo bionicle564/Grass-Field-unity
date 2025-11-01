@@ -27,14 +27,14 @@ void CSMain (uint3 id : SV_DispatchThreadID)
 
 
     GrassData g;
-    float x = index % 299;
-    float z = index / 299;
+    float x = index % 300;
+    float z = index / 300;
 
     float2 uv;
-    uv.x = x / 299;
-    uv.y = z / 299;
+    uv.x = x / 300;
+    uv.y = z / 300;
 
-    float4 hightMapST = float4(1,1,0,0);
+    float4 hightMapST = float4(2,2,0,0);
 
     uv = uv * hightMapST.xy + hightMapST.zw;
 
@@ -42,9 +42,9 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     float displace = hightMap.SampleLevel(sampler_point_repeat, uv, 0).r;
 
     displace *= heightScale;
-    displace -= 1.25;
+    //displace -= 1.25;
 
-    x -= 150;
+    x -= 148;
     z -= 150;
 
     g.position = float3(x, displace, z);
