@@ -5,13 +5,13 @@
 // with cs.SetTexture
 struct GrassData
 {
-    float3 position;
+    float4 position;
 };
 
 RWStructuredBuffer<GrassData> grassBuffer;
 
 Texture2D<float3> hightMap;
-SamplerState sampler_point_repeat;
+SamplerState sampler_linear_repeat;
 
 float2 groundSize;
 float heightScale;
@@ -46,15 +46,15 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     uv = uv * hightMapST.xy + hightMapST.zw;
 
 
-    float displace = hightMap.SampleLevel(sampler_point_repeat, uv, 0).r;
+    float displace = hightMap.SampleLevel(sampler_linear_repeat, uv, 0).r;
 
     displace *= heightScale;
-    displace -= 1.25;
+    displace -= 1.5;
 
-    x -= 149;
-    z -= 149;
+    x -= sideLength / 2;
+    z -= sideLength / 2;
 
-    g.position = float3(x, displace, z);
+    g.position = float4(x, displace, z, displace);
     
     
     

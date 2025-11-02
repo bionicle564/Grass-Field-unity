@@ -28,7 +28,7 @@ Shader "Custom/test"
 
             struct GrassData
             {
-                float3 position;
+                float4 position;
             };
 
             StructuredBuffer<GrassData> _GrassBuffer;
@@ -49,6 +49,7 @@ Shader "Custom/test"
                 float4 normal : NORMAL;
                 float4 pos : COLOR;
                 half3 lightAmount : TEXCOORD2;
+                nointerpolation uint index : TEXCOORD1;
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
@@ -143,7 +144,7 @@ Shader "Custom/test"
             Varyings vert(Attributes IN,uint instanceID : SV_InstanceID)
             {
                 Varyings OUT;
-
+                OUT.index = instanceID;
                 UNITY_SETUP_INSTANCE_ID(IN);
 
                 //float offset = UNITY_VERTEX_INPUT_INSTANCE_ID;
@@ -204,6 +205,8 @@ Shader "Custom/test"
             half4 frag(Varyings IN) : SV_Target
             {
                 
+                GrassData data = _GrassBuffer[IN.index];
+                
                 float4 _Seed;
                 
                 float2 bladePos = float2(.0,.55);
@@ -259,8 +262,9 @@ Shader "Custom/test"
                 //c = highlights; // testing
 
                 //half4 color = half4(highlights,c.y,0,1);
-                half4 color = half4(0,c.y,0,1);
+                half4 color = half4(0,c.y * data.position.w,0,1);
 
+                
 
                 float brightness = .1;
                 brightness += IN.lightAmount.x;

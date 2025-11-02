@@ -155,7 +155,7 @@ MonoBehaviour:
   grassCount: 90000
   hightScale: 11.2
   sideLength: 300
-  density: 3
+  density: 2
 --- !u!4 &284196442
 Transform:
   m_ObjectHideFlags: 0
@@ -812,7 +812,7 @@ Transform:
   m_GameObject: {fileID: 1239562242}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -5.81, y: 2.303, z: -2.55}
+  m_LocalPosition: {x: -5.81, y: 0.23, z: -2.55}
   m_LocalScale: {x: 1, y: 2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
