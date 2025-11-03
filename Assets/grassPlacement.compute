@@ -48,13 +48,19 @@ void CSMain (uint3 id : SV_DispatchThreadID)
 
     float displace = hightMap.SampleLevel(sampler_linear_repeat, uv, 0).r;
 
+    float preDis = displace;
+    
+    
+    
     displace *= heightScale;
     displace -= 1.5;
 
     x -= sideLength / 2;
     z -= sideLength / 2;
+    
+    //x += 2;
 
-    g.position = float4(x, displace, z, displace);
+    g.position = float4(x, displace, z, preDis);
     
     
     

@@ -152,10 +152,14 @@ Shader "Custom/test"
                 GrassData data = _GrassBuffer[instanceID];
 
                 float randomHeight = noise(data.position.xz);
+                float randomRot = noise(data.position.xw);
 
                 float wind = random(data.position.xz);
 
                 IN.positionOS = RotateAroundYInDegrees(IN.positionOS, 45.f);
+
+                //random rotation
+                IN.positionOS = RotateAroundYInDegrees(IN.positionOS, randomRot);
 
                 
                 float2 dir = normalize(float2(1.0, 0.3)); // wave direction (any vector on XZ)
@@ -241,7 +245,7 @@ Shader "Custom/test"
                 base = smoothstep(.2,.3,base);
                 c += base;
 
-                float alpha = step(.9, c);
+                float alpha = step(.53, c);
 
                 if (alpha < 1)
                 {
@@ -255,16 +259,24 @@ Shader "Custom/test"
                 float highlights = smoothstep(.2, 10.1, c);
                 highlights -= base;
                 highlights = smoothstep(0.0, 1, highlights);
-                highlights*=50;
+                highlights*=10;
 
                 c = smoothstep(.2, 1.1, c);
 
                 //c = highlights; // testing
+                float preDis = data.position.w;
+
+                preDis -= .1;
+                
 
                 //half4 color = half4(highlights,c.y,0,1);
-                half4 color = half4(0,c.y * data.position.w,0,1);
+                half4 color = half4(highlights,c.y,0,1);
 
-                
+                half4 color2 = half4(1,.9,0,1);
+
+                color += color2 * step(.15,preDis);
+
+                color *=.55;
 
                 float brightness = .1;
                 brightness += IN.lightAmount.x;
