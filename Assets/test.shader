@@ -152,13 +152,14 @@ Shader "Custom/test"
                 GrassData data = _GrassBuffer[instanceID];
 
                 float randomHeight = noise(data.position.xz);
-                float randomRot = noise(data.position.xw);
+                float randomRot = noise(data.position.xz);
 
-                float wind = random(data.position.xz);
+                float wind = random(data.position.wz);
 
                 IN.positionOS = RotateAroundYInDegrees(IN.positionOS, 45.f);
 
                 //random rotation
+                randomRot *= 360;
                 IN.positionOS = RotateAroundYInDegrees(IN.positionOS, randomRot);
 
                 
@@ -274,7 +275,7 @@ Shader "Custom/test"
 
                 half4 color2 = half4(1,.9,0,1);
 
-                color += color2 * step(.15,preDis);
+                color += color2 * step(.29,preDis);
 
                 color *=.55;
 
