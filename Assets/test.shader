@@ -162,27 +162,35 @@ Shader "Custom/test"
                 randomRot *= 360;
                 IN.positionOS = RotateAroundYInDegrees(IN.positionOS, randomRot);
 
-                
-                float2 dir = normalize(float2(1.0, 0.3)); // wave direction (any vector on XZ)
-                float frequency = 2.0;                    // how many waves fit per unit
-                float amplitude = .6;                    // wave height
-                float steepness = 1.5;                    // how sharp the crests are
-                float speed = 1.3;                        // how fast the wave moves
+                static const float2 directions[2] = {
+                    float2(1,0),
+                    float2(1,1)
+                };
 
-                // Get vertex position in XZ
-                float2 posXZ = IN.positionOS.xz;
 
-                // Compute wave phase
-                float wavePhase = dot(dir, posXZ) * frequency + _Time.y * speed;
+                if(IN.positionOS .y > 0){
+                        for(int i=0;i<2;i++){
+                        float2 dir = normalize(directions[i]); // wave direction (any vector on XZ)
+                        float frequency = 1.0;                    // how many waves fit per unit
+                        float amplitude = .3 + (i/2.f);                    // wave height
+                        float steepness = 1.0;                    // how sharp the crests are
+                        float speed = .5;                        // how fast the wave moves
 
-                // Gerstner displacement
-                float waveHeight = sin(wavePhase) * amplitude;
-                float2 waveOffset = dir * cos(wavePhase) * amplitude * steepness;
+                        // Get vertex position in XZ
+                        float2 posXZ = IN.positionOS.xz * 1.5;
 
-                // Apply displacements
-                //IN.positionOS.xz += (waveOffset + (wind * 2)) * IN.positionOS.y;
-                //IN.positionOS.x += ( _SinTime.w);
-                
+                        // Compute wave phase
+                        float wavePhase = dot(dir, posXZ) * frequency + _Time.y * speed;
+
+                        // Gerstner displacement
+                        float waveHeight = sin(wavePhase) * amplitude;
+                        float2 waveOffset = dir * cos(wavePhase) * amplitude * steepness;
+
+                        // Apply displacements
+                        IN.positionOS.xz += (waveOffset ) * IN.positionOS.y;
+                        //IN.positionOS.x += ( _SinTime.w);
+                    }
+                }
 
 
                 //IN.positionOS.y *= ((randomHeight+1));
@@ -246,7 +254,7 @@ Shader "Custom/test"
                 base = smoothstep(.2,.3,base);
                 c += base;
 
-                float alpha = step(.53, c);
+                float alpha = step(.7, c);
 
                 if (alpha < 1)
                 {
@@ -275,7 +283,7 @@ Shader "Custom/test"
 
                 half4 color2 = half4(1,.9,0,1);
 
-                color += color2 * step(.29,preDis);
+                color += color2 * step(.25,preDis);
 
                 color *=.55;
 
@@ -284,7 +292,7 @@ Shader "Custom/test"
                 //brightness = smoothstep(.3, 1, brightness);
 
                 color *= brightness;
-                //color.xyz += (IN.lightAmount * .3);
+                //color.xyz = IN.normal.xyz;
                 return color;
             }
             ENDHLSL
