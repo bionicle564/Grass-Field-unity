@@ -157,10 +157,13 @@ Shader "Custom/test"
                 float wind = random(data.position.wz);
 
                 IN.positionOS = RotateAroundYInDegrees(IN.positionOS, 45.f);
+                IN.normal = normalize(RotateAroundYInDegrees(IN.normal, 45.f));
 
                 //random rotation
                 randomRot *= 360;
+                
                 IN.positionOS = RotateAroundYInDegrees(IN.positionOS, randomRot);
+                IN.normal = RotateAroundYInDegrees(IN.normal, randomRot);
 
                 static const float2 directions[2] = {
                     float2(1,0),
@@ -187,7 +190,7 @@ Shader "Custom/test"
                         float2 waveOffset = dir * cos(wavePhase) * amplitude * steepness;
 
                         // Apply displacements
-                        IN.positionOS.xz += (waveOffset ) * IN.positionOS.y;
+                        //IN.positionOS.xz += (waveOffset ) * IN.positionOS.y;
                         //IN.positionOS.x += ( _SinTime.w);
                     }
                 }
@@ -198,16 +201,14 @@ Shader "Custom/test"
                 //OUT.positionHCS = TransformObjectToHClip((IN.positionOS.xyz + (IN.normal.xyz * random(IN.uv.xy) * _SinTime.w * .001)));
                 OUT.positionHCS = TransformObjectToHClip(IN.positionOS.xyz + data.position);
 
-                VertexPositionInputs posData = GetVertexPositionInputs(IN.positionOS.xyz); 
+                VertexPositionInputs posData = GetVertexPositionInputs(IN.positionOS.xyz + data.position.xyz); 
                 OUT.pos.xyz = posData.positionWS;
 
-                VertexNormalInputs normData = GetVertexNormalInputs(IN.positionOS);
-                OUT.normal.xyz = normData.normalWS;
+                VertexNormalInputs normData = GetVertexNormalInputs(IN.positionOS + data.position.xyz);
+                OUT.normal.xyz = IN.normal.xyz;
+                
 
 
-                Light light = GetMainLight();
-
-                OUT.lightAmount = LightingLambert(light.color, light.direction, normData.normalWS.xyz);
 
                 OUT.uv = TRANSFORM_TEX(IN.uv, _BaseMap);
 
@@ -215,7 +216,7 @@ Shader "Custom/test"
             }
 
             
-            half4 frag(Varyings IN) : SV_Target
+            half4 frag(Varyings IN, bool frontFace : SV_IsFrontFace) : SV_Target
             {
                 
                 GrassData data = _GrassBuffer[IN.index];
@@ -287,11 +288,22 @@ Shader "Custom/test"
 
                 color *=.55;
 
-                float brightness = .1;
+                float brightness = .5;
+
+                Light light = GetMainLight();
+
+                if(!frontFace)
+                {
+                    IN.normal.xyz = (-IN.normal.xyz * 2) * frontFace;
+                }
+
+                IN.lightAmount = LightingLambert(light.color, light.direction, IN.normal);
+
                 brightness += IN.lightAmount.x;
                 //brightness = smoothstep(.3, 1, brightness);
 
                 color *= brightness;
+                //color.xyz = float3(IN.lightAmount);
                 //color.xyz = IN.normal.xyz;
                 return color;
             }
