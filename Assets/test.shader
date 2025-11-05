@@ -195,6 +195,20 @@ Shader "Custom/test"
                     }
                 }
 
+                float3 viewDir = GetViewForwardDir();
+                float faceDot = dot(viewDir, IN.normal.xyz);
+                // - means front face
+                // + means back face
+                
+                
+                Light light = GetMainLight();
+
+                if(faceDot > 0)
+                {
+                    IN.normal.xyz = -IN.normal.xyz ;
+                }
+
+                OUT.lightAmount = LightingLambert(light.color, light.direction, IN.normal);
 
                 //IN.positionOS.y *= ((randomHeight+1));
 
@@ -218,7 +232,6 @@ Shader "Custom/test"
             
             half4 frag(Varyings IN, bool frontFace : SV_IsFrontFace) : SV_Target
             {
-                
                 GrassData data = _GrassBuffer[IN.index];
                 
                 float4 _Seed;
@@ -288,16 +301,8 @@ Shader "Custom/test"
 
                 color *=.55;
 
-                float brightness = .5;
+                float brightness = .3;
 
-                Light light = GetMainLight();
-
-                if(!frontFace)
-                {
-                    IN.normal.xyz = (-IN.normal.xyz * 2) * frontFace;
-                }
-
-                IN.lightAmount = LightingLambert(light.color, light.direction, IN.normal);
 
                 brightness += IN.lightAmount.x;
                 //brightness = smoothstep(.3, 1, brightness);
