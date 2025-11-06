@@ -151,10 +151,19 @@ Shader "Custom/test"
 
                 GrassData data = _GrassBuffer[instanceID];
 
+                float3 viewDir = GetViewForwardDir();
+                float3 viewPos = GetCameraPositionWS();
+                float inFrontOfCam = dot(viewPos, data.position.xyz - viewPos);
+
+                if (inFrontOfCam < 0){
+                    //should be gone
+                }
+
+
                 float randomHeight = noise(data.position.xz);
                 float randomRot = noise(data.position.xz);
 
-                float wind = random(data.position.wz);
+                float wind = random(data.position.xz);
 
                 IN.positionOS = RotateAroundYInDegrees(IN.positionOS, 45.f);
                 IN.normal = normalize(RotateAroundYInDegrees(IN.normal, 45.f));
@@ -172,7 +181,7 @@ Shader "Custom/test"
 
 
                 if(IN.positionOS .y > 0){
-                        for(int i=0;i<2;i++){
+                    for(int i=0;i<2;i++){
                         float2 dir = normalize(directions[i]); // wave direction (any vector on XZ)
                         float frequency = 1.0;                    // how many waves fit per unit
                         float amplitude = .3 + (i/2.f);                    // wave height
@@ -195,18 +204,19 @@ Shader "Custom/test"
                     }
                 }
 
-                float3 viewDir = GetViewForwardDir();
+                
                 float faceDot = dot(viewDir, IN.normal.xyz);
                 // - means front face
                 // + means back face
                 
+                faceDot *= 10;
+                faceDot = faceDot / abs(faceDot);
                 
                 Light light = GetMainLight();
 
-                if(faceDot > 0)
-                {
-                    IN.normal.xyz = -IN.normal.xyz ;
-                }
+                
+                IN.normal.xyz = -IN.normal.xyz * faceDot;
+                
 
                 OUT.lightAmount = LightingLambert(light.color, light.direction, IN.normal);
 
@@ -230,7 +240,7 @@ Shader "Custom/test"
             }
 
             
-            half4 frag(Varyings IN, bool frontFace : SV_IsFrontFace) : SV_Target
+            half4 frag(Varyings IN) : SV_Target
             {
                 GrassData data = _GrassBuffer[IN.index];
                 

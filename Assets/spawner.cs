@@ -16,8 +16,11 @@ public class spawner : MonoBehaviour
     public int sideLength = 300;
     public int density = 1;
 
+    public Camera camera;
+
     ComputeBuffer grassBuffer;
     ComputeBuffer argsBuf;
+    ComputeBuffer countOut;
 
     int kernel;
     uint threadGroupX;
@@ -36,7 +39,11 @@ public class spawner : MonoBehaviour
         };
 
         argsBuf = new ComputeBuffer(1, 5 * sizeof(uint), ComputeBufferType.IndirectArguments);
-        argsBuf.SetData(args);
+        
+
+        countOut = new ComputeBuffer(1, 1 * sizeof(uint), ComputeBufferType.Structured);
+
+
 
         kernel = grassCompute.FindKernel("CSMain");
         grassCompute.GetKernelThreadGroupSizes(kernel, out threadGroupX, out _, out _);
@@ -44,7 +51,10 @@ public class spawner : MonoBehaviour
 
         grassCompute.SetTexture(kernel, "hightMap", hightMap);
 
+        // set the camPosition
+        grassCompute.SetVector("camPos", camera.transform.position);
 
+        grassCompute.SetBuffer(kernel, "count", countOut);
 
         grassCompute.SetFloat("heightScale",hightScale);
         grassCompute.SetFloat("sideLength", sideLength);
@@ -52,10 +62,27 @@ public class spawner : MonoBehaviour
         grassCompute.SetInt("density", density);
 
         grassCompute.SetInt("grassCount", (grassCount*density * density));
+
+        //set the data in the material for grass rendering
         grassMaterial.SetBuffer("_GrassBuffer", grassBuffer);
 
         grassCompute.Dispatch(kernel, Mathf.CeilToInt((grassCount * density * density) / (float)threadGroupX), 1,1);
 
+
+        GrassData[] grassPreSort = new GrassData[grassCount * density * density];
+
+        grassBuffer.GetData(grassPreSort);
+        
+        
+        uint[] backData = new uint[1];
+        countOut.GetData(backData);
+
+        args[1] = backData[0];
+        
+        argsBuf.SetData(args);
+
+
+        Debug.Log(grassPreSort.Length);
 
     }
 
@@ -73,5 +100,6 @@ public class spawner : MonoBehaviour
     {
         grassBuffer?.Release();
         argsBuf?.Release();
+        countOut?.Release();
     }
 }

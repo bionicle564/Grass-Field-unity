@@ -9,6 +9,7 @@ struct GrassData
 };
 
 RWStructuredBuffer<GrassData> grassBuffer;
+RWStructuredBuffer<uint> count;
 
 Texture2D<float3> hightMap;
 SamplerState sampler_linear_repeat;
@@ -21,6 +22,9 @@ float sideLength;
 uint density;
 
 uint grassCount;
+
+float4 camPos;
+
 
 [numthreads(64,1,1)] //groups of 64
 void CSMain (uint3 id : SV_DispatchThreadID)
@@ -60,9 +64,17 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     
     //x += 2;
 
-    g.position = float4(x, displace, z, preDis);
+    g.position = float4(x, displace, z, 0);
     
+    float3 viewPos = camPos;
+    float inFrontOfCam = dot(viewPos, g.position.xyz - viewPos);
     
+    if (inFrontOfCam < 0)
+    {
+        InterlockedAdd(count[0],1);
+    }
+    
+    g.position.w = inFrontOfCam;
     
     grassBuffer[index] = g;
 
