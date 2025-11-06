@@ -1,5 +1,7 @@
 using UnityEngine;
 using System.Runtime.InteropServices;
+using System;
+using System.Linq;
 
 public class spawner : MonoBehaviour
 {
@@ -68,12 +70,15 @@ public class spawner : MonoBehaviour
 
         grassCompute.Dispatch(kernel, Mathf.CeilToInt((grassCount * density * density) / (float)threadGroupX), 1,1);
 
-
+        // get the positions back
         GrassData[] grassPreSort = new GrassData[grassCount * density * density];
-
         grassBuffer.GetData(grassPreSort);
-        
-        
+
+        // sort based on if it should be culled
+        GrassData[] grassSorted = grassPreSort.OrderByDescending(x => x.position.w).ToArray();
+        //grassBuffer.Release();
+        grassBuffer.SetData(grassSorted);
+
         uint[] backData = new uint[1];
         countOut.GetData(backData);
 
@@ -82,7 +87,7 @@ public class spawner : MonoBehaviour
         argsBuf.SetData(args);
 
 
-        Debug.Log(grassPreSort.Length);
+        Debug.Log(backData[0]);
 
     }
 

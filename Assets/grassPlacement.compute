@@ -69,13 +69,15 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     float3 viewPos = camPos;
     float inFrontOfCam = dot(viewPos, g.position.xyz - viewPos);
     
-    if (inFrontOfCam < 0)
+    if (x >= 0)
     {
         InterlockedAdd(count[0],1);
+        g.position.w = 1;
     }
-    
-    g.position.w = inFrontOfCam;
-    
+    else
+    {   
+        g.position.w = 0;
+    }
     grassBuffer[index] = g;
 
 }

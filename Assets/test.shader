@@ -296,8 +296,8 @@ Shader "Custom/test"
 
                 c = smoothstep(.2, 1.1, c);
 
-                //c = highlights; // testing
-                float preDis = data.position.w;
+                //c = highlights; // testing 
+                float preDis = data.position.y;
 
                 preDis -= .1;
                 
