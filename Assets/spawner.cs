@@ -55,6 +55,7 @@ public class spawner : MonoBehaviour
 
         // set the camPosition
         grassCompute.SetVector("camPos", camera.transform.position);
+        grassCompute.SetVector("camDir", camera.transform.forward);
 
         grassCompute.SetBuffer(kernel, "count", countOut);
 
@@ -67,6 +68,9 @@ public class spawner : MonoBehaviour
 
         //set the data in the material for grass rendering
         grassMaterial.SetBuffer("_GrassBuffer", grassBuffer);
+        uint[] backData = new uint[1];
+        backData[0] = 0;
+        countOut.SetData(backData);
 
         grassCompute.Dispatch(kernel, Mathf.CeilToInt((grassCount * density * density) / (float)threadGroupX), 1,1);
 
@@ -79,7 +83,7 @@ public class spawner : MonoBehaviour
         //grassBuffer.Release();
         grassBuffer.SetData(grassSorted);
 
-        uint[] backData = new uint[1];
+        
         countOut.GetData(backData);
 
         args[1] = backData[0];

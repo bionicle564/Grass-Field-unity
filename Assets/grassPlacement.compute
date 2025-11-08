@@ -25,6 +25,8 @@ uint grassCount;
 
 float4 camPos;
 
+float4 camDir;
+
 
 [numthreads(64,1,1)] //groups of 64
 void CSMain (uint3 id : SV_DispatchThreadID)
@@ -67,9 +69,9 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     g.position = float4(x, displace, z, 0);
     
     float3 viewPos = camPos;
-    float inFrontOfCam = dot(viewPos, g.position.xyz - viewPos);
+    float inFrontOfCam = dot(camDir.xyz, g.position.xyz - viewPos);
     
-    if (x >= 0)
+    if (inFrontOfCam >= 0)
     {
         InterlockedAdd(count[0],1);
         g.position.w = 1;
