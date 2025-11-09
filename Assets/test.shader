@@ -160,7 +160,8 @@ Shader "Custom/test"
                 }
 
 
-                float randomHeight = noise(data.position.xz);
+                float randomHeight = noise(data.position.xz * float2(40.10-data.position.y,40.10+data.position.y) * .01);
+                randomHeight*=3;
                 float randomRot = noise(data.position.xz);
 
                 float wind = random(data.position.xz);
@@ -199,9 +200,11 @@ Shader "Custom/test"
                         float2 waveOffset = dir * cos(wavePhase) * amplitude * steepness;
 
                         // Apply displacements
-                        //IN.positionOS.xz += (waveOffset ) * IN.positionOS.y;
+                        IN.positionOS.xz += (waveOffset ) * IN.positionOS.y;
                         //IN.positionOS.x += ( _SinTime.w);
                     }
+                    
+                    IN.positionOS.y *= ((randomHeight));
                 }
 
                 
@@ -220,7 +223,6 @@ Shader "Custom/test"
 
                 OUT.lightAmount = LightingLambert(light.color, light.direction, IN.normal);
 
-                //IN.positionOS.y *= ((randomHeight+1));
 
                 //OUT.positionHCS = TransformObjectToHClip((IN.positionOS.xyz + (IN.normal.xyz * random(IN.uv.xy) * _SinTime.w * .001)));
                 OUT.positionHCS = TransformObjectToHClip(IN.positionOS.xyz + data.position);
@@ -231,7 +233,7 @@ Shader "Custom/test"
                 VertexNormalInputs normData = GetVertexNormalInputs(IN.positionOS + data.position.xyz);
                 OUT.normal.xyz = IN.normal.xyz;
                 
-
+                //OUT.normal.x = randomHeight;
 
 
                 OUT.uv = TRANSFORM_TEX(IN.uv, _BaseMap);
@@ -305,9 +307,9 @@ Shader "Custom/test"
                 //half4 color = half4(highlights,c.y,0,1);
                 half4 color = half4(highlights,c.y,0,1);
 
-                half4 color2 = half4(1,.9,0,1);
+                half4 color2 = half4(.1,.09,0,1);
 
-                color += color2 * step(.25,preDis);
+                color += color2 * step(.9,preDis);
 
                 color *=.55;
 
@@ -318,7 +320,9 @@ Shader "Custom/test"
                 //brightness = smoothstep(.3, 1, brightness);
 
                 color *= brightness;
-                //color.xyz = float3(IN.lightAmount);
+                float o = IN.normal.x;
+                o = smoothstep(0,3,o);
+                //color.xyz = float3(o,o,o);
                 //color.xyz = IN.normal.xyz;
                 return color;
             }
