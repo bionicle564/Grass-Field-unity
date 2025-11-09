@@ -70,7 +70,7 @@ Shader "Custom/hightShader"
             half4 frag(Varyings IN) : SV_Target
             {
                 half4 color = SAMPLE_TEXTURE2D_LOD(_HightMap, sampler_HightMap, IN.uv, 0) * _BaseColor;
-                color *= .5;
+                color *= 1.9;
                 //half4 color = IN.pos;
                 return color;
             }

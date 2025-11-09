@@ -206,7 +206,7 @@ Shader "Custom/test"
                     
                     IN.positionOS.y *= ((randomHeight));
                 }
-
+                IN.positionOS *= .5;
                 
                 float faceDot = dot(viewDir, IN.normal.xyz);
                 // - means front face
@@ -248,12 +248,18 @@ Shader "Custom/test"
                 
                 float4 _Seed;
                 
+                float kill = noise(data.position.xz * 5.01 );
+                if (kill > .4){
+                    discard;
+                }
+
                 float2 bladePos = float2(.0,.55);
                 float2 bladePos2 = float2(.7,.55);
                 float2 c = 0;
 
                 float2 p;
-
+                float targetBlades = noise(data.position.yx);
+                targetBlades *= 10;
                 for(int i=0;i<20;i++)
                 {
                     float n = noise(float2(-i,i+10));
@@ -307,13 +313,18 @@ Shader "Custom/test"
                 //half4 color = half4(highlights,c.y,0,1);
                 half4 color = half4(highlights,c.y,0,1);
 
-                half4 color2 = half4(.1,.09,0,1);
+                half4 color2 = half4(.2,.25,0,1);
 
                 color += color2 * step(.9,preDis);
 
                 color *=.55;
 
+
+
+
                 float brightness = .3;
+
+                
 
 
                 brightness += IN.lightAmount.x;
@@ -322,6 +333,11 @@ Shader "Custom/test"
                 color *= brightness;
                 float o = IN.normal.x;
                 o = smoothstep(0,3,o);
+
+                float cloudShadow = noise((data.position.xz * .01) + _Time.w * .055);
+
+                color *= cloudShadow;
+
                 //color.xyz = float3(o,o,o);
                 //color.xyz = IN.normal.xyz;
                 return color;
