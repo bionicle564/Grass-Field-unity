@@ -5,6 +5,7 @@ Shader "Custom/test"
         [MainColor] _BaseColor("Base Color", Color) = (1, 1, 1, 1)
         [MainTexture] _BaseMap("Base Map", 2D) = "white"
         _Seed("Seed", Vector) = (1,1,1,1)
+
     }
 
     SubShader
@@ -32,7 +33,7 @@ Shader "Custom/test"
             };
 
             StructuredBuffer<GrassData> _GrassBuffer;
-
+            uniform float4 _particlePosition;
 
             struct Attributes
             {
@@ -65,6 +66,7 @@ Shader "Custom/test"
             CBUFFER_START(UnityPerMaterial)
                 half4 _BaseColor;
                 float4 _BaseMap_ST;
+                
             CBUFFER_END
             
             float random (float2 st) {
@@ -223,11 +225,17 @@ Shader "Custom/test"
 
                 OUT.lightAmount = LightingLambert(light.color, light.direction, IN.normal);
 
-
+                if(IN.positionOS.y > 0){
+                    float3 finalPos = IN.positionOS.xyz + data.position.xyz;
+                    float3 bend = finalPos - _particlePosition.xyz;
+                    float str = length(bend);
+                    bend = normalize(bend);
+                    IN.positionOS.xyz += bend;
+                }
                 //OUT.positionHCS = TransformObjectToHClip((IN.positionOS.xyz + (IN.normal.xyz * random(IN.uv.xy) * _SinTime.w * .001)));
                 OUT.positionHCS = TransformObjectToHClip(IN.positionOS.xyz + data.position);
 
-                VertexPositionInputs posData = GetVertexPositionInputs(IN.positionOS.xyz + data.position.xyz); 
+                VertexPositionInputs posData = GetVertexPositionInputs(IN.positionOS.xyz + data.position.xyz);
                 OUT.pos.xyz = posData.positionWS;
 
                 VertexNormalInputs normData = GetVertexNormalInputs(IN.positionOS + data.position.xyz);
@@ -339,7 +347,7 @@ Shader "Custom/test"
                 color *= cloudShadow;
 
                 //color.xyz = float3(o,o,o);
-                //color.xyz = IN.normal.xyz;
+                //color.xyz = _particlePosition.xyz;
                 return color;
             }
             ENDHLSL
