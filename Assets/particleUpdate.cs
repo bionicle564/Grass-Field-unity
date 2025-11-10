@@ -1,10 +1,12 @@
 using System.Drawing;
 using Unity.Mathematics;
 using UnityEngine;
+using System;
 
 public class particleUpdate : MonoBehaviour
 {
     public Texture2D hieghtMap;
+    float timer;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -14,11 +16,13 @@ public class particleUpdate : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        timer += Time.deltaTime;
         Vector3 newPos = new Vector3();
         float x = transform.position.x;
         float z = transform.position.z;
 
-        x += Time.deltaTime;
+        x = (float)Math.Sin(timer) * 4.5f;
+        z = (float)Math.Cos(timer) * 4.5f;
         float y = GetYForXZ(x, z);
 
         newPos.x = x;
