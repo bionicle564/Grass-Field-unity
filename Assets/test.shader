@@ -225,12 +225,18 @@ Shader "Custom/test"
 
                 OUT.lightAmount = LightingLambert(light.color, light.direction, IN.normal);
 
+                OUT.normal.x = 0;
+
                 if(IN.positionOS.y > 0){
                     float3 finalPos = IN.positionOS.xyz + data.position.xyz;
                     float3 bend = finalPos - _particlePosition.xyz;
                     float str = length(bend);
                     bend = normalize(bend);
-                    IN.positionOS.xyz += bend;
+                    bend.y = abs(bend.y) * -1;
+                    //bend.x = 0;
+                    //bend.z = 0;
+                    //OUT.normal.x = ;
+                    IN.positionOS.xyz += (bend * (1 - smoothstep(0,1.5, str)) * 2);
                 }
                 //OUT.positionHCS = TransformObjectToHClip((IN.positionOS.xyz + (IN.normal.xyz * random(IN.uv.xy) * _SinTime.w * .001)));
                 OUT.positionHCS = TransformObjectToHClip(IN.positionOS.xyz + data.position);
@@ -239,7 +245,7 @@ Shader "Custom/test"
                 OUT.pos.xyz = posData.positionWS;
 
                 VertexNormalInputs normData = GetVertexNormalInputs(IN.positionOS + data.position.xyz);
-                OUT.normal.xyz = IN.normal.xyz;
+                //OUT.normal.xyz = IN.normal.xyz;
                 
                 //OUT.normal.x = randomHeight;
 
@@ -340,7 +346,7 @@ Shader "Custom/test"
 
                 color *= brightness;
                 float o = IN.normal.x;
-                o = smoothstep(0,3,o);
+                //o = smoothstep(0,3,o);
 
                 float cloudShadow = noise((data.position.xz * .01) + _Time.w * .055);
 
