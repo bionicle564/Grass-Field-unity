@@ -1034,6 +1034,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 71970bf47288d004589cef89c8329435, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  hieghtMap: {fileID: 2800000, guid: f4366b7e70c613b4686cb50c1c784752, type: 3}
 --- !u!135 &1822928031
 SphereCollider:
   m_ObjectHideFlags: 0

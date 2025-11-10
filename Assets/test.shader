@@ -157,10 +157,6 @@ Shader "Custom/test"
                 float3 viewPos = GetCameraPositionWS();
                 float inFrontOfCam = dot(viewPos, data.position.xyz - viewPos);
 
-                if (inFrontOfCam < 0){
-                    //should be gone
-                }
-
 
                 float randomHeight = noise(data.position.xz * float2(40.10-data.position.y,40.10+data.position.y) * .01);
                 randomHeight*=3;
@@ -234,7 +230,7 @@ Shader "Custom/test"
                     bend = normalize(bend);
                     bend.y = abs(bend.y) * -1;
 
-                    IN.positionOS.xyz += (bend * (1 - smoothstep(0,1.5, str)) * 2);
+                    IN.positionOS.xyz += (bend * (1 - smoothstep(0,1.9, str)) * 2);
                 }
                 //OUT.positionHCS = TransformObjectToHClip((IN.positionOS.xyz + (IN.normal.xyz * random(IN.uv.xy) * _SinTime.w * .001)));
                 OUT.positionHCS = TransformObjectToHClip(IN.positionOS.xyz + data.position);
@@ -347,7 +343,7 @@ Shader "Custom/test"
                 color *= cloudShadow;
 
                 float leth = length(IN.pos.xyz - _particlePosition.xyz);
-                leth = smoothstep(0,2.5,leth);
+                leth = smoothstep(.9,2.5,leth);
 
 
                 color *= brightness;
