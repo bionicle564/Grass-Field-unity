@@ -5,7 +5,6 @@ Shader "Custom/test"
         [MainColor] _BaseColor("Base Color", Color) = (1, 1, 1, 1)
         [MainTexture] _BaseMap("Base Map", 2D) = "white"
         _Seed("Seed", Vector) = (1,1,1,1)
-
     }
 
     SubShader
@@ -256,8 +255,8 @@ Shader "Custom/test"
                 
                 float4 _Seed;
                 
-                float kill = noise(data.position.xz * 5.01 );
-                if (kill > .4){
+                float kill = noise(data.position.xz * 5.0 );
+                if (smoothstep(0,1,kill) > .3){
                     discard;
                 }
 
@@ -284,19 +283,19 @@ Shader "Custom/test"
                     
                     p = mul(scale(float2(1 - (2* (i%2)),1)),p); // flip every other blade
 
-                    c +=  smoothstep(0.01,-.04,sdGrassBlade2d(p));
+                    c +=  smoothstep(0.03,-.04,sdGrassBlade2d(p));
 
                 }
 
                 //green base
-                float base = 1-sdCircle((IN.uv.xy * float2(1,1.5)) + float2(-.5,.7), .3);
+                float base = 1-sdCircle((IN.uv.xy * float2(1,1.5)) + float2(-.5,.7), .13);
 
                 base = smoothstep(.2,.3,base);
                 c += base;
 
                 float alpha = step(.7, c);
 
-                if (alpha < 1)
+                if (alpha < 1 || IN.uv.y > .65)
                 {
                     discard;
                 }
@@ -308,22 +307,22 @@ Shader "Custom/test"
                 float highlights = smoothstep(.2, 10.1, c);
                 highlights -= base;
                 highlights = smoothstep(0.0, 1, highlights);
-                highlights*=10;
+                highlights*=1.5;
 
                 c = smoothstep(.2, 1.1, c);
 
                 //c = highlights; // testing 
-                float preDis = data.position.y;
+                float preDis = noise((data.position.xz + IN.uv) * .1);
 
                 preDis -= .1;
                 
 
                 //half4 color = half4(highlights,c.y,0,1);
                 half4 color = half4(highlights,c.y,0,1);
+                color += half4(.4,.2,.1,0);
+                half4 color2 = half4(1.6,1.4,0,1);
 
-                half4 color2 = half4(.2,.25,0,1);
-
-                color += color2 * step(.9,preDis);
+                color += color2 * smoothstep(.16,.9,preDis);
 
                 color *=.55;
 
