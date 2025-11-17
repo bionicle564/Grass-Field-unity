@@ -5,6 +5,7 @@ Shader "Custom/test"
         [MainColor] _BaseColor("Base Color", Color) = (1, 1, 1, 1)
         [MainTexture] _BaseMap("Base Map", 2D) = "white"
         _Seed("Seed", Vector) = (1,1,1,1)
+        _LightTweak("Light compensation", float) = 1
     }
 
     SubShader
@@ -65,7 +66,8 @@ Shader "Custom/test"
             CBUFFER_START(UnityPerMaterial)
                 half4 _BaseColor;
                 float4 _BaseMap_ST;
-                
+                float _LightTweak;
+                float4 _Seed;
             CBUFFER_END
             
             float random (float2 st) {
@@ -157,11 +159,10 @@ Shader "Custom/test"
                 float inFrontOfCam = dot(viewPos, data.position.xyz - viewPos);
 
 
-                float randomHeight = noise(data.position.xz * float2(40.10-data.position.y,40.10+data.position.y) * .01);
+                float randomHeight = noise((data.position.xz * float2(40.10-data.position.y,40.10+data.position.y) * .01 ) + _Seed.zw);
                 randomHeight*=3;
-                float randomRot = noise(data.position.xz);
+                float randomRot = noise(data.position.xz + _Seed.xy);
 
-                float wind = random(data.position.xz);
 
                 IN.positionOS = RotateAroundYInDegrees(IN.positionOS, 45.f);
                 IN.normal = normalize(RotateAroundYInDegrees(IN.normal, 45.f));
@@ -334,7 +335,7 @@ Shader "Custom/test"
                 
 
 
-                brightness += IN.lightAmount.x;
+                brightness += IN.lightAmount.x * _LightTweak;
                 //brightness = smoothstep(.3, 1, brightness);
 
                 float cloudShadow = noise((data.position.xz * .01) + _Time.w * .055);
