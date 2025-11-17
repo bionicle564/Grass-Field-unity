@@ -293,7 +293,7 @@ Shader "Custom/test"
                 base = smoothstep(.2,.3,base);
                 c += base;
 
-                float alpha = step(.7, c);
+                float alpha = step(.8, c);
 
                 if (alpha < 1 || IN.uv.y > .65)
                 {

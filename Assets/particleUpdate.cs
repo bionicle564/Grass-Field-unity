@@ -7,22 +7,25 @@ public class particleUpdate : MonoBehaviour
 {
     public Texture2D hieghtMap;
     float timer;
+    Vector3 startPos;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+        startPos.x = transform.position.x;
+        startPos.z = transform.position.z;
     }
+    
 
     // Update is called once per frame
     void Update()
     {
         timer += Time.deltaTime;
         Vector3 newPos = new Vector3();
-        float x = transform.position.x;
-        float z = transform.position.z;
+        float x = startPos.x;
+        float z = startPos.z;
 
-        x = (float)Math.Sin(timer) * 4.5f;
-        z = (float)Math.Cos(timer) * 4.5f;
+        x += (float)Math.Sin(timer) * 4.5f;
+        z += (float)Math.Cos(timer) * 4.5f;
         float y = GetYForXZ(x, z);
 
         newPos.x = x;
@@ -48,7 +51,7 @@ public class particleUpdate : MonoBehaviour
 
         float displacement = hieghtMap.GetPixelBilinear(u, v).r;
         displacement *= 11.2f;
-        displacement -= 3.9f;
+        displacement -= 3.7f;
 
         return displacement;
     }
