@@ -49,6 +49,34 @@ Shader "Custom/hightShader"
                 float4 _HightMap_ST;
             CBUFFER_END
 
+            float random (float2 st) {
+                return frac(sin(dot(st.xy,
+                float2(12.9898,78.233)))
+                * 43758.5453123);
+            }
+
+            float noise (in float2 st) {
+                float2 i = floor(st);
+                float2 f = frac(st);
+
+                // Four corners in 2D of a tile
+                float a = random(i);
+                float b = random(i + float2(1.0, 0.0));
+                float c = random(i + float2(0.0, 1.0));
+                float d = random(i + float2(1.0, 1.0));
+
+                // Smooth Interpolation
+
+                // Cubic Hermine Curve.  Same as SmoothStep()
+                float2 u = f*f*(3.0-2.0*f);
+                // u = smoothstep(0.,1.,f);
+
+                // Mix 4 coorners percentages
+                return lerp(a, b, u.x) +
+                (c - a)* u.y * (1.0 - u.x) +
+                (d - b) * u.x * u.y;
+            }
+
             Varyings vert(Attributes IN)
             {
                 Varyings OUT;
@@ -58,8 +86,8 @@ Shader "Custom/hightShader"
 
                 float newHight = SAMPLE_TEXTURE2D_LOD(_HightMap, sampler_HightMap, meh, 0).r;
                 newHight *= _HightStr;
-                OUT.pos.y = newHight;
                 IN.positionOS.y = newHight;
+                OUT.pos.xyz = IN.positionOS.xyz;
                 OUT.positionHCS = TransformObjectToHClip(IN.positionOS.xyz);
 
                 OUT.uv = TRANSFORM_TEX(IN.uv, _BaseMap);
@@ -70,7 +98,10 @@ Shader "Custom/hightShader"
             half4 frag(Varyings IN) : SV_Target
             {
                 half4 color = SAMPLE_TEXTURE2D_LOD(_HightMap, sampler_HightMap, IN.uv, 0) * _BaseColor;
-                color *= 1.9;
+
+                float cloudShadow = noise((IN.pos.xz * .01) + _Time.w * .055);
+
+                color *= cloudShadow;
                 //half4 color = IN.pos;
                 return color;
             }
