@@ -53,7 +53,7 @@ public class particleUpdate : MonoBehaviour
                             moveForward * (moveValue.y * Time.deltaTime * speed);
         //this.startPos.z += moveValue.y * Time.deltaTime * speed;
 
-        Debug.Log(startPos.ToString());
+        //Debug.Log(startPos.ToString());
 
 
         float x = startPos.x;
@@ -72,6 +72,10 @@ public class particleUpdate : MonoBehaviour
         Shader.SetGlobalVector("_particlePosition", transform.position);
     }
     
+    public void Exit(InputAction.CallbackContext context)
+    {
+        Application.Quit();
+    }
 
     float GetYForXZ(float x, float z) 
     {
@@ -91,4 +95,6 @@ public class particleUpdate : MonoBehaviour
 
         return displacement;
     }
+
+    
 }
