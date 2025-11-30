@@ -1,18 +1,42 @@
+using System;
 using System.Drawing;
 using Unity.Mathematics;
+using Unity.VisualScripting;
 using UnityEngine;
-using System;
+using UnityEngine.InputSystem;
+using static UnityEngine.Rendering.DebugUI;
 
 public class particleUpdate : MonoBehaviour
 {
     public Texture2D hieghtMap;
+    public float speed = 50;
+
+    public InputAction moveAction;
     float timer;
+
+    Vector3 moveRight;
+    Vector3 moveForward;
+
+
     Vector3 startPos;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         startPos.x = transform.position.x;
         startPos.z = transform.position.z;
+
+        moveAction = InputSystem.actions.FindAction("Move");
+
+        Vector3 cameraPos = GameObject.FindGameObjectWithTag("MainCamera").transform.position;
+
+        moveForward = startPos - cameraPos;
+        moveForward.y = 0;
+        moveForward = moveForward.normalized;
+
+        moveRight = Vector3.Cross(moveForward, new Vector3(0, 1, 0));
+        moveRight = moveRight.normalized;
+        
+
     }
     
 
@@ -21,6 +45,17 @@ public class particleUpdate : MonoBehaviour
     {
         timer += Time.deltaTime;
         Vector3 newPos = new Vector3();
+
+
+        Vector2 moveValue = moveAction.ReadValue<Vector2>();
+
+        this.startPos += (moveRight * (-moveValue.x * Time.deltaTime * speed)) + 
+                            moveForward * (moveValue.y * Time.deltaTime * speed);
+        //this.startPos.z += moveValue.y * Time.deltaTime * speed;
+
+        Debug.Log(startPos.ToString());
+
+
         float x = startPos.x;
         float z = startPos.z;
 
@@ -36,6 +71,7 @@ public class particleUpdate : MonoBehaviour
 
         Shader.SetGlobalVector("_particlePosition", transform.position);
     }
+    
 
     float GetYForXZ(float x, float z) 
     {
