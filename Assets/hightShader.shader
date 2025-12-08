@@ -99,7 +99,7 @@ Shader "Custom/hightShader"
             {
                 half4 color = SAMPLE_TEXTURE2D_LOD(_HightMap, sampler_HightMap, IN.uv, 0) * _BaseColor;
 
-                float cloudShadow = noise((IN.pos.xz * .01) + _Time.w * .055);
+                float cloudShadow = noise((IN.pos.xz * -300 * .01) + _Time.w * .055);
 
                 color *= cloudShadow;
                 //half4 color = IN.pos;
